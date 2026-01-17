@@ -1,0 +1,12 @@
+analyzer:
+  errors:
+    unused_import: error
+    unused_local_variable: error
+    unused_element: warning
+linter:
+  rules:
+    - avoid_print
+    - prefer_const_constructors
+    - prefer_const_literals_to_create_immutables
+    - use_key_in_widget_constructors
+    - always_declare_return_types

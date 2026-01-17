@@ -1,0 +1,155 @@
+# 进度日志
+
+## 2026-01-16
+- 初始化规划文件（task_plan.md、findings.md、progress.md）。
+- 记录用户输入与约束到 findings.md。
+- 启动阶段 1（需求与探索）。
+- 起草 PRD 并保存为 PRD.md。
+- 完成阶段 2 与阶段 3，进入阶段 4 审阅。
+- 审阅 PRD 完整性，覆盖指标、风险与角色范围。
+- 准备 PRD 最终交付。
+- 阅读现有 PRD 并确认需要生成需求说明书。
+- 在 findings.md 记录新的文档要求。
+- 生成需求文档说明书并保存为 docs/requirements.md。
+- 更新 task_plan.md 阶段状态为完成。
+- 根据新增目标用户与瑜伽馆客户定位，扩展 requirements.md 与 PRD.md。
+- 补充商户（瑜伽馆）能力、套餐与审批流，并新增支付/退款规则矩阵。
+- 确认不采用托管支付，已更新 PRD 与 requirements 文档的支付/退款规则。
+- 确定常规退款方案，补充时间分段比例与违约金规则。
+- 补充 docs/architecture.md，明确数据库、框架、服务拆分与部署方案。
+- 生成 docs/database-schema.md，完成数据库设计初版。
+- 生成 database-ddl.sql、database-er.md、api-field-alignment.md 三份交付文档。
+- 生成 API 接口文档 docs/api.md。
+- API 文档补充字段校验、状态机约束与权限矩阵。
+- 在 api.md 增补字段规格明细（类型/必填/范围/默认值）。
+- API 文档补齐非关键对象字段规格（通知、消息、审计、配置等）。
+- 更新 task_plan.md 为功能实现阶段计划。
+- 创建整体目录结构与后端 Rust 单体后端服务基础骨架。
+- 初始化移动端与管理后台目录骨架。
+- 更新 AGENTS.md：依赖包需使用最新稳定版本。
+- 实现后端 API 核心路由与 SQL 逻辑（auth/users/photographers/demands/quotes/orders/payments/refunds/deliveries/reviews/disputes/merchants/messages/notifications/admin）。
+- API 统一挂载在 /api/v1，健康检查保留 /health。
+- 依赖升级为最新稳定版本并加入 uuid。
+- 添加 SeaORM 依赖（最新稳定版本）并更新 architecture.md。
+- 新增 SeaORM 迁移模块（backend/src/migration），采用 1.1.19 稳定版。
+- 后端服务初始化同时创建 SeaORM 连接以支持后续 ORM 迁移。
+- 新增 SeaORM 实体模块，并完成 users/user_profiles/sessions/verification_codes 实体定义。
+- 完成 SeaORM 实体：photographers、demands、demand_attachments、quotes、quote_items。
+- 完成 SeaORM 实体：orders、order_items、payments、refunds。
+- 迁移至 SeaORM：auth/users/demands/quotes/orders/payments/refunds/photographers 等核心路由。
+- 新增实体：portfolios、portfolio_items。
+- SeaORM 迁移：demands/quotes/payments/refunds 使用 Decimal 转换辅助函数。
+- users 更新接口增加 updated_at 刷新。
+- SeaORM JSON 字段写入改为 serde_json::json，并修正订单接受报价时写入摄影师/团队。
+- SeaORM 迁移：deliveries/reviews/disputes 路由完成。
+- 新增实体：deliveries/delivery_items/reviews/disputes/dispute_evidence。
+- 商户模块 SeaORM 迁移完成（merchants/模板/审批/合同/发票）。
+- 消息/通知/审计日志已迁移至 SeaORM。
+- 新增实体：merchant_*、messages/conversations/notifications/audit_logs/configs。
+- 完成 conversations 与 admin/configs API，并通过 cargo check（仅剩 db 未使用警告）。
+- 修复 ActiveModel 初始化的 clippy 警告并合并昵称校验逻辑。
+- 补充摄影师端 API：我的档案/订单/订单详情/作品集列表与条目列表。
+- 补充商户端 API：我的商户、商户订单、模板/审批/合同/发票列表接口与权限校验。
+- 移动端新增摄影师中心、交付与作品集管理页面。
+- 移动端新增商户中心、模板/审批/订单/合同/发票页面并接入接口。
+- 移动端补充摄影师端提交报价页面并在需求详情接入。
+- 更新 docs/api.md 新增接口文档条目。
+- 通过 `cargo clippy --all-targets -- -D warnings` 与 `flutter analyze`。
+- 新增摄影师端“我的报价”列表与详情页面并接入。
+- 需求列表支持筛选与“我的需求/需求广场”角色视图。
+- 后端支持 /quotes/mine 与需求列表 mine/type 参数，并放宽 /quotes/{id} 权限至摄影师本人。
+- 摄影师报价支持撤回（pending -> expired）并返回订单关联 ID。
+- 需求列表新增预算/风格/时间区间/是否商户筛选参数与移动端筛选 UI。
+- 需求列表新增排序与分页加载，需求广场支持更多筛选条件。
+- 摄影师报价列表/详情新增订单状态展示与订单联动入口。
+- 需求列表排序策略优化（预算空值处理）并补充排序参数说明。
+- 摄影师报价详情与列表强化状态提示与撤回规则提示。
+- 订单支持退款预览与取消流程（直付，自动生成退款记录）。
+- 支付支持分期阶段标记，退款记录增加责任方字段。
+- cargo clippy --all-targets -- -D warnings 通过。
+- cargo test 首次因编译耗时超时，增加超时时间后通过（当前无测试用例）。
+- 新增基础测试用例（手机号与验证码格式、时间格式解析），cargo test 通过。
+- 完成管理后台前端骨架（React + Ant Design），新增仪表盘/用户/订单/纠纷/审计/配置页面与主题样式。
+- 管理后台接入登录与基础 API 客户端（路由守卫、配置保存、订单/需求拉取）。
+- 补充角色校验与菜单权限控制（RequireRole/AccessDenied、角色过滤菜单）。
+- 后端登录根据环境变量下发管理后台角色（ADMIN_PHONES/OPS_PHONES/MANAGER_PHONES）。
+- 新增管理员专用列表接口（/admin/users、/admin/orders、/admin/disputes）并接入管理后台前端。
+- 对齐管理后台筛选条件（用户：keyword/role/status；订单：status；纠纷：status）。
+- 管理后台列表支持分页（后端返回 total/page/page_size，前端 Table 分页联动）。
+- 管理后台添加 ESLint 配置与 lint 脚本，要求零警告通过。
+- 管理后台 lint 通过（eslint . --max-warnings 0）。
+- 管理后台新增审核/冻结/纠纷处理接口并接入管理后台前端操作按钮。
+- 修复 admin 列表分页返回类型与 is_not_in 条件错误，cargo check 通过。
+- 管理后台新增订单/纠纷详情接口与页面，并接入真实数据（含支付/退款/交付/证据）。
+- 移动端初始化 Flutter 工程骨架，覆盖登录、需求、报价、订单、支付、交付、评价、纠纷基础流程。
+- 补充用户侧接口：报价列表/详情、交付列表。
+- 修复新增用户侧接口的编译问题并通过 cargo check。
+- 管理后台新增审计日志列表接口与分页筛选，并在管理后台前端接入。
+- 管理后台配置中心接入配置读取与商户审批列表/审核操作。
+- 管理后台新增商户模板列表接口并接入配置中心展示。
+- 管理后台新增指标统计/趋势接口（/admin/metrics、/admin/metrics/trends）与订单报表导出接口（/admin/reports/orders）。
+- 管理后台仪表盘接入指标与趋势数据，订单监控使用管理后台真实订单列表。
+- 更新 api.md 的管理后台指标/报表说明。
+- 更新 AGENTS.md，补充后端 clippy 规范要求。
+- 移动端完善通知列表、个人资料编辑、需求创建字段、列表下拉刷新与订单详情操作后刷新。
+- 移动端新增通知详情与已读接口对接、会话持久化（shared_preferences）、基础主题与输入校验优化。
+- 通知模块支持已读/未读筛选与全部已读，订单详情 UI 与状态提示完善，需求附件预览与相机/相册占位交互补充。
+- 完成 Flutter 环境安装与移动端分析检查（flutter analyze 通过），修复主题/控件弃用警告并更新测试占位。
+- 通知新增未读汇总接口，移动端首页红点与筛选联动完成。
+- 订单列表支持状态筛选与状态标签展示。
+- 新增文件上传接口与移动端图片选择/上传流程，补齐 iOS/Android 权限配置。
+- 上传接口增加类型/大小限制，移动端图片上传前压缩处理。
+- 通知列表支持分页加载与已读状态回写优化。
+- 订单列表增加搜索与金额排序。
+- 通知列表新增“仅未读”快捷入口并同步未读数。
+- 订单列表新增金额区间筛选，后端支持 min/max 过滤。
+- 通知列表支持默认筛选开关与记忆上次筛选。
+- 订单列表新增金额/时间排序与分页加载。
+- 订单列表支持时间区间筛选并增加清空筛选入口。
+- 通知列表在“仅未读”状态下全部标记已读后自动切换到“已读”。
+- 订单列表增加日期选择器并持久化筛选条件。
+- 通知列表支持触底自动加载更多。
+- 订单列表时间筛选展示为日期格式并提供复制筛选链接功能。
+- 订单筛选条件持久化范围扩展至排序/金额/时间。
+- 通知列表触底加载显示加载中状态。
+- 订单列表新增筛选面板收起/展开与日期清除按钮。
+- 订单列表收起时展示筛选摘要，空状态补充引导入口。
+- 通知列表增加加载失败重试按钮。
+- 筛选摘要支持点击复制，通知空态与重试合并展示。
+- 订单列表空态增加发布需求入口。
+- 更新 database-ddl.sql 对齐最新实体字段（quotes/quote_versions/orders/payments/refunds）。
+- 报价支持版本更新与历史版本查询，新增有效期自动过期处理。
+- docs/api.md 补充报价版本/修改报价与字段规格更新。
+- 移动端新增聊天会话与消息页，订单详情接入联系入口。
+- 移动端摄影师报价支持修改与版本记录查看，提交报价支持版本说明。
+- 后端收敛为单体后端服务结构：API 代码迁移到 `backend/src`，统一 `common.rs` / `entity` / `migration` 组织。
+- 迁移方式改为 Rust DSL，新增独立迁移入口 `backend/src/bin/migrate.rs`。
+- 后端错误处理明确为 thiserror + anyhow，并完善内部错误日志。
+- 删除旧的 backend/crates 目录，后端仅保留单体后端服务结构。
+- 文档补充迁移命令作为标准流程说明。
+
+## 2026-01-17
+- 接入团队管理 API（创建、列表、成员管理），并挂载路由。
+- 补齐商户门店与商户成员 API（新增、列表、更新/删除、成员增删）。
+- 更新 docs/api.md 增加团队与商户门店/成员接口说明及校验规则。
+- 新增后端分层目录（handlers/services/repositories/dto/errors），并将团队/商户模块迁移到新分层。
+- 后端错误处理补充 DomainError/ServiceError（thiserror + anyhow），保持 clippy 规范通过。
+- 迁移订单/支付/退款、需求/报价、消息/通知、配置与管理后台接口到 handlers/services/repositories 分层。
+- 清理弃用目录（backend/migrations、docs/legacy_migrations、backend/target、/target），文档结构保持统一。
+- 管理后台优先未完成清单（待补齐）：
+- 运营配置范围不足（标签/推荐位/活动等），目前仅覆盖基础配置项。
+- 新增管理后台内容审核：后端新增作品集审核列表/审核接口，管理后台新增“内容审核”页面并接入。
+- 管理后台订单列表新增报表导出（/admin/reports/orders），支持状态与日期区间导出 CSV。
+- 更新 docs/api.md 增补管理后台用户/订单/纠纷/商户审批/作品集审核等端点说明。
+- 新增摄影师列表 API（支持关键词/城市/类型/分页）并在移动端接入供给展示。
+- 移动端补充“摄影师列表/详情”入口，支持供给展示与作品集只读查看。
+- 移动端补充团队管理（创建团队、成员管理）与商户门店/成员管理页面并接入接口。
+- 校验通过：cargo clippy（-D warnings）、cargo test、flutter analyze、admin_web eslint（--max-warnings 0）。
+- 新增商户对账导出接口（/merchants/reports/orders），移动端订单页支持导出对账单并复制 CSV。
+- 扩展运营配置项（需求标签/摄影师标签/推荐位/活动），管理后台配置中心支持 JSON/标签编辑并持久化。
+- 摄影师列表推荐排序优化：按评分与完成单数优先展示。
+- 新增商户素材库与版本表迁移、实体与仓储方法。
+- 新增商户素材库 API（创建/列表/版本列表/新增版本）并更新 API 文档与数据库文档。
+- 新增需求关联商户素材库查询接口（/demands/{id}/merchant-assets）并更新 API 对齐文档。
+- 移动端需求详情支持跳转查看商户素材库（只读）。
+- 商户/摄影师订单详情增加商户素材库入口，并新增后端访问权限校验（需求发布者/商户成员/参与报价或订单的摄影师与团队）。
