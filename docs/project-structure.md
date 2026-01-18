@@ -13,6 +13,10 @@
     progress.md
     project-structure.md
     architecture.md
+    deploy.md
+
+  deploy/
+    docker/
 
   apps/
     mobile/
@@ -79,12 +83,6 @@
   contracts/
     openapi/                 # API 规范
     events/                  # 领域事件定义
-
-  infra/
-    docker/
-    k8s/
-    monitoring/
-    env/
 
   scripts/
     dev/

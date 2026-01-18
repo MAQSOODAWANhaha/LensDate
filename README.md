@@ -64,3 +64,7 @@ npm run dev
 - 架构方案：`docs/architecture.md`
 - API 文档：`docs/api.md`
 - 数据库设计：`docs/database-schema.md`
+- 部署指南：`docs/deploy.md`
+
+## 部署目录
+- 部署相关文件统一放在 `deploy/`（Dockerfile 等）。
