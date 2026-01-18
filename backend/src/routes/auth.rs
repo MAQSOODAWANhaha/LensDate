@@ -1,4 +1,5 @@
 use axum::{routing::post, Json, Router};
+use bcrypt::verify;
 use chrono::{Duration, Utc};
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set};
 use serde::{Deserialize, Serialize};
@@ -20,8 +21,10 @@ struct SendCodeResp {
 
 #[derive(Deserialize)]
 struct LoginReq {
-    phone: String,
-    code: String,
+    phone: Option<String>,
+    code: Option<String>,
+    username: Option<String>,
+    password: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -73,23 +76,64 @@ async fn login(
     axum::extract::State(state): axum::extract::State<AppState>,
     Json(req): Json<LoginReq>,
 ) -> ApiResult<LoginResp> {
-    if !is_valid_phone(&req.phone) {
-        return Err(ApiError::bad_request("invalid_phone"));
-    }
+    let user = if let Some(code) = req.code.as_deref() {
+        let phone = req
+            .phone
+            .as_deref()
+            .ok_or_else(|| ApiError::bad_request("phone_required"))?;
+        if !is_valid_phone(phone) {
+            return Err(ApiError::bad_request("invalid_phone"));
+        }
 
-    let verify = verification_codes::Entity::find()
-        .filter(verification_codes::Column::Phone.eq(&req.phone))
-        .filter(verification_codes::Column::Code.eq(&req.code))
-        .filter(verification_codes::Column::ExpiredAt.gt(Utc::now()))
-        .order_by_desc(verification_codes::Column::CreatedAt)
-        .one(&state.orm)
-        .await?;
+        let verify_code = verification_codes::Entity::find()
+            .filter(verification_codes::Column::Phone.eq(phone))
+            .filter(verification_codes::Column::Code.eq(code))
+            .filter(verification_codes::Column::ExpiredAt.gt(Utc::now()))
+            .order_by_desc(verification_codes::Column::CreatedAt)
+            .one(&state.orm)
+            .await?;
 
-    if verify.is_none() {
-        return Err(ApiError::bad_request("invalid_code"));
-    }
+        if verify_code.is_none() {
+            return Err(ApiError::bad_request("invalid_code"));
+        }
 
-    let user = ensure_user(&state.orm, &req.phone).await?;
+        ensure_user(&state.orm, phone).await?
+    } else if let Some(password) = req.password.as_deref() {
+        if req.username.is_none() && req.phone.is_none() {
+            return Err(ApiError::bad_request("login_payload_required"));
+        }
+        let mut user = None;
+        if let Some(username) = req.username.as_deref() {
+            if !is_valid_username(username) {
+                return Err(ApiError::bad_request("invalid_username"));
+            }
+            user = users::Entity::find()
+                .filter(users::Column::Username.eq(username))
+                .one(&state.orm)
+                .await?;
+        } else if let Some(phone) = req.phone.as_deref() {
+            if !is_valid_phone(phone) {
+                return Err(ApiError::bad_request("invalid_phone"));
+            }
+            user = users::Entity::find()
+                .filter(users::Column::Phone.eq(phone))
+                .one(&state.orm)
+                .await?;
+        }
+
+        let user = user.ok_or_else(|| ApiError::bad_request("invalid_credentials"))?;
+        let hash = user
+            .password_hash
+            .as_deref()
+            .ok_or_else(|| ApiError::bad_request("password_not_set"))?;
+        let ok = verify(password, hash).map_err(|_| ApiError::internal())?;
+        if !ok {
+            return Err(ApiError::bad_request("invalid_credentials"));
+        }
+        user
+    } else {
+        return Err(ApiError::bad_request("login_payload_required"));
+    };
     let token = Uuid::new_v4().to_string();
 
     let session = sessions::ActiveModel {
@@ -135,6 +179,14 @@ fn is_valid_phone(phone: &str) -> bool {
         return false;
     }
     phone.chars().all(|c| c.is_ascii_digit())
+}
+
+fn is_valid_username(username: &str) -> bool {
+    let name = username.trim();
+    if name.len() < 2 || name.len() > 32 {
+        return false;
+    }
+    name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '.')
 }
 
 fn generate_code() -> String {
@@ -191,5 +243,13 @@ mod tests {
         let code = generate_code();
         assert_eq!(code.len(), 6);
         assert!(code.chars().all(|c| c.is_ascii_digit()));
+    }
+
+    #[test]
+    fn test_is_valid_username() {
+        assert!(is_valid_username("admin_user"));
+        assert!(is_valid_username("admin.user"));
+        assert!(!is_valid_username("a"));
+        assert!(!is_valid_username("admin user"));
     }
 }

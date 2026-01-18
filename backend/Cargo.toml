@@ -17,3 +17,4 @@ sea-orm-migration = { version = "1.1.19", features = ["runtime-tokio-rustls", "s
 chrono = { version = "0.4.43", features = ["serde"] }
 async-trait = "0.1.89"
 anyhow = "1.0.97"
+bcrypt = "0.18.0"

@@ -19,3 +19,4 @@
 - 依赖包统一使用“最新稳定版本”，避免 alpha/beta；版本变更需同步到依赖清单与文档。
 - 前端项目需符合 lint 规范（以零警告为准），新增规则需同步到工程配置与文档。
 - 后端需通过 `cargo clippy --all-targets -- -D warnings`，避免引入新增警告。
+- 执行任何 `git add` / `git commit` / `git push` 前必须先获得用户明确同意。

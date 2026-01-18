@@ -47,8 +47,12 @@
 
 ### 2.2 登录
 - POST `/auth/login`
-- req: `{ "phone": "", "code": "" }`
+- req（三选一）：
+  - 手机号 + 验证码：`{ "phone": "", "code": "" }`
+  - 手机号 + 密码：`{ "phone": "", "password": "" }`
+  - 用户名 + 密码：`{ "username": "", "password": "" }`
 - res: `{ "token": "", "user": { "id": 1, "phone": "", "status": "active" }, "roles": ["user"] }`
+- 说明：密码登录需已设置 `password_hash`（管理员账号建议通过初始化脚本或数据库预置）。
 
 ### 2.3 获取我的信息
 - GET `/users/me`

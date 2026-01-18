@@ -19,6 +19,7 @@
 ## 3. 基础与账号体系
 ### 3.1 users（用户）
 - id PK
+- username（唯一，可选）
 - phone（唯一）
 - email（可选）
 - password_hash（若短信登录可为空）

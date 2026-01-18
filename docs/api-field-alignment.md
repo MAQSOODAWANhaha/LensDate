@@ -5,7 +5,7 @@
 ## 1. 认证与用户
 ### 1.1 登录/注册
 - POST /api/v1/auth/login
-  - req: phone, code
+  - req: phone+code 或 phone+password 或 username+password
   - res: token, user{id, phone, status}, roles[]
   - tables: users, sessions, user_roles
 
